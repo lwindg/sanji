@@ -10,11 +10,17 @@ class ModelBatch(object):
         self.model = model
 
     def __enter__(self):
+        self.begin()
+
+    def __exit__(self, type, value, traceback):
+        self.commit()
+
+    def begin(self):
         if self.enable.is_set():
             raise RuntimeError("Already in batch mode")
         self.enable.set()
 
-    def __exit__(self, type, value, traceback):
+    def commit(self):
         self.enable.clear()
         self.model.save_db()
 
